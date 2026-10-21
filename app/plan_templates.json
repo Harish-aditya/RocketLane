@@ -1,0 +1,13 @@
+{
+  "assumption": "Shared illustrative tasks approved as an implementation assumption; phase day allocations are proposed, not supplied by Karthik. Durations use calendar-day spans.",
+  "phases": [
+    {"name": "Kickoff", "tasks": ["Confirm goals and success criteria", "Introduce stakeholders and CSM", "Agree delivery plan and responsibilities"]},
+    {"name": "Data Migration", "tasks": ["Inventory source data and access", "Map fields and prepare import", "Run migration and resolve errors", "Verify record counts and sample data with customer"]},
+    {"name": "Configuration", "tasks": ["Configure workspace settings", "Configure roles and permissions", "Configure integrations", "Run customer acceptance checks"]},
+    {"name": "Go-Live", "tasks": ["Train customer administrators", "Approve readiness including verified migration", "Launch production workflow", "Complete handover and success review"]}
+  ],
+  "plans": {
+    "Enterprise": {"duration_days": 30, "csm_mode": "dedicated", "phase_days": [3, 12, 10, 5]},
+    "Growth": {"duration_days": 14, "csm_mode": "pooled", "phase_days": [2, 5, 4, 3]}
+  }
+}

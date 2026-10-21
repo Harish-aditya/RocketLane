@@ -1,0 +1,6 @@
+Customer Name: Acme Labs
+Contact Email: champion@acme.example
+AE Name: Alex Smith
+AE Email: alex@sales.example
+AE Phone: +12025550123
+Opportunity URL: https://crm.example/opportunities/acme-001

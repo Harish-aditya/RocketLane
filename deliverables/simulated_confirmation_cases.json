@@ -1,0 +1,117 @@
+[
+  {
+    "simulation": true,
+    "response": "Enterprise",
+    "state": "complete",
+    "confirmed_plan": "Enterprise",
+    "duration_days": 30,
+    "csm_mode": "dedicated",
+    "project_id": "demo-project-ce1a9aa2",
+    "slack_channel": "onboard-acme-labs-enterprise-ce1a9aa2",
+    "team_added": [
+      "Project Manager",
+      "Project Owner",
+      "Dedicated CSM"
+    ],
+    "confirmation_required": null,
+    "actions": {
+      "calls": 1,
+      "projects": 1,
+      "channels": 1,
+      "member_invitations": 3,
+      "welcome_messages": 1
+    },
+    "audit_actions": [
+      "intake",
+      "call_intent",
+      "call_result",
+      "outcome_intent",
+      "outcome_result",
+      "project_intent",
+      "project_result",
+      "channel_intent",
+      "channel_result",
+      "add_member_intent",
+      "add_member_result",
+      "add_member_intent",
+      "add_member_result",
+      "add_member_intent",
+      "add_member_result",
+      "topic_intent",
+      "topic_result",
+      "welcome_intent",
+      "welcome_result"
+    ]
+  },
+  {
+    "simulation": true,
+    "response": "Growth",
+    "state": "complete",
+    "confirmed_plan": "Growth",
+    "duration_days": 14,
+    "csm_mode": "pooled",
+    "project_id": "demo-project-ce1a9aa2",
+    "slack_channel": "onboard-acme-labs-growth-ce1a9aa2",
+    "team_added": [
+      "Project Manager",
+      "Project Owner",
+      "Pooled CSM representative"
+    ],
+    "confirmation_required": null,
+    "actions": {
+      "calls": 1,
+      "projects": 1,
+      "channels": 1,
+      "member_invitations": 3,
+      "welcome_messages": 1
+    },
+    "audit_actions": [
+      "intake",
+      "call_intent",
+      "call_result",
+      "outcome_intent",
+      "outcome_result",
+      "project_intent",
+      "project_result",
+      "channel_intent",
+      "channel_result",
+      "add_member_intent",
+      "add_member_result",
+      "add_member_intent",
+      "add_member_result",
+      "add_member_intent",
+      "add_member_result",
+      "topic_intent",
+      "topic_result",
+      "welcome_intent",
+      "welcome_result"
+    ]
+  },
+  {
+    "simulation": true,
+    "response": "the expensive one",
+    "state": "retry_voice",
+    "confirmed_plan": null,
+    "duration_days": null,
+    "csm_mode": null,
+    "project_id": null,
+    "slack_channel": null,
+    "team_added": [],
+    "confirmation_required": "Please explicitly confirm Enterprise or Growth for Acme Labs. Descriptions such as \"the expensive one\" do not confirm a plan.",
+    "actions": {
+      "calls": 1,
+      "projects": 0,
+      "channels": 0,
+      "member_invitations": 0,
+      "welcome_messages": 0
+    },
+    "audit_actions": [
+      "intake",
+      "call_intent",
+      "call_result",
+      "outcome_intent",
+      "plan_clarification",
+      "outcome_result"
+    ]
+  }
+]

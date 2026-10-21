@@ -1,0 +1,3 @@
+Customer Name: Acme Labs
+Contact Email: champion@acme.example
+Salesforce Opportunity Link: https://crm.example/opportunities/acme-001

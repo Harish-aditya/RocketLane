@@ -1,0 +1,9 @@
+.venv/
+.env
+*.db
+*.db-*
+*.db.checkpoints*
+__pycache__/
+.pytest_cache/
+recordings/
+*.worker.lock
