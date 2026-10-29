@@ -6,7 +6,6 @@ import time
 import re
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
-from .models import Deal
 
 
 class IntegrationError(Exception):
@@ -44,49 +43,14 @@ def request(method, url, headers, payload=None):
 
 class LiveServices:
     def call(self, deal):
-        # AE routing is operational configuration, not a mandatory customer email field.
-        phone = deal.get('ae_phone') or os.getenv('AE_DEFAULT_PHONE')
-        if not phone:
-            raise IntegrationError('AE phone routing unavailable; configure AE_DEFAULT_PHONE for the designated AE or supply optional AE Phone')
-        try:
-            Deal.phone(phone)
-        except ValueError as exc:
-            raise IntegrationError('Configured AE phone must use E.164 format') from exc
-        ae_name = deal.get('ae_name') or os.getenv('AE_DEFAULT_NAME') or 'Account Executive'
-        return request('POST', 'https://api.vapi.ai/call',
-            {'Authorization': 'Bearer ' + required('VAPI_API_KEY')}, {
-                'assistantId': required('VAPI_ASSISTANT_ID'),
-                'phoneNumberId': required('VAPI_PHONE_NUMBER_ID'),
-                'customer': {'number': phone},
-                'assistantOverrides': {'firstMessage': f'Hello {ae_name}. Please confirm the onboarding plan for {deal["customer_name"]}. Say only Enterprise or Growth.'}
-            })['id']
+        raise IntegrationError('Telephone confirmation is not configured; use simulated plan confirmation in demo mode')
 
     def outcome(self, call_id):
-        call = request('GET', f'https://api.vapi.ai/call/{call_id}',
-                       {'Authorization': 'Bearer ' + required('VAPI_API_KEY')})
-        if call.get('status') != 'ended':
-            return None
-        messages = call.get('messages') or call.get('artifact', {}).get('messages', [])
-        answers = [m.get('message', '') for m in messages if m.get('role') == 'user']
-        # Fail closed on multi-turn or contradictory responses. Human review can inspect provider evidence.
-        return answers[0] if len(answers) == 1 else 'unresolved'
+        raise IntegrationError('No telephone provider is installed; real call confirmation requires a replacement integration')
 
     def project(self, run):
-        plan = run['plan'].upper()
-        payload = {
-            'projectName': f'{run["deal"]["customer_name"]} onboarding [{run["id"]}]',
-            'customer': {'companyName': run['deal']['customer_name']},
-            'autoCreateCompany': True,
-            'owner': {'emailId': run.get('owner_email') or required('ROCKETLANE_OWNER_EMAIL')},
-            'teamMembers': {'members': [{'emailId': run.get('csm_email') or required(plan + '_CSM_EMAIL')}]},
-            'startDate': run['start_date'],
-            'sources': json.loads(required(plan + '_TEMPLATE_SOURCES')),
-            'externalReferenceId': run['id'],
-        }
-        # Template duration and role mappings must be verified during tenant setup.
-        result = request('POST', 'https://api.rocketlane.com/api/1.0/projects',
-                         {'api-key': required('ROCKETLANE_API_KEY')}, payload)
-        return str(result['projectId'])
+        from .rocketlane_agent import RocketlaneAgent
+        return RocketlaneAgent().create_project(run)
 
     def slack(self, method, payload, accepted_errors=()):
         result = request('POST', 'https://slack.com/api/' + method,

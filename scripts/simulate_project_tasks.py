@@ -69,7 +69,9 @@ def simulate(store, rid, phase='all'):
                 if not active:
                     continue
                 cursor = store.db.execute('SELECT oldest_ts FROM delivery_monitors WHERE run_id=?', (rid,)).fetchone()[0]
-                stamp = max(Decimal(str(time.time())), Decimal(cursor)) + Decimal('0.000001')
+                prior_stamps = [Decimal(row[0]) for row in store.db.execute(
+                    'SELECT message_ts FROM delivery_updates WHERE channel_id=?', (cfg['channel_id'],))]
+                stamp = max([Decimal(str(time.time())), Decimal(cursor)] + prior_stamps) + Decimal('0.000001')
                 api.messages = [{'ts': str(stamp + Decimal(n) / 1000000), 'user': cfg['csm_user'],
                                  'text': f'TASK {t["task_id"]} STATUS {status} PROGRESS {progress} NOTE SIMULATION ONLY'}
                                 for n, t in enumerate(active)]

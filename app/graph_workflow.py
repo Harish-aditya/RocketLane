@@ -46,10 +46,16 @@ class Workflow(Operations):
         for node in ['create_channel', 'add_team_member','invite_customer', 'set_topic', 'send_welcome']:
             communication.add_edge(node, END)
 
+        rocketlane = StateGraph(GraphState)
+        rocketlane.add_node('rocketlane_agent', self._action('project'))
+        rocketlane.add_edge(START, 'rocketlane_agent')
+        rocketlane.add_edge('rocketlane_agent', END)
+
         graph = StateGraph(GraphState)
         graph.add_node('load_and_guard', self._load)
         graph.add_node('intake_routing_agent', intake.compile())
-        graph.add_node('provision_project', self._action('project'))
+        # Preserve the outer node name for existing persisted checkpoints.
+        graph.add_node('provision_project', rocketlane.compile())
         graph.add_node('communication_agent', communication.compile())
         graph.add_node('human_reconciliation', self._human)
         graph.add_edge(START, 'load_and_guard')
@@ -93,6 +99,9 @@ class Workflow(Operations):
             route = 'stop'
         if run.get('slack_mode')=='real_slack_demo' and not getattr(self.services,'real_slack',False):
             route='stop'  # A pure simulation worker cannot complete real Slack actions.
+        voice_mode = run.get('voice_mode', 'simulated' if run.get('simulation') else 'real')
+        if (voice_mode == 'real') != bool(getattr(self.services, 'real_voice', False)):
+            route='stop'  # Never replace a real call with a simulated answer, or dial an old demo run.
         return {'run': run, 'route': route}
 
     def _action(self, action):

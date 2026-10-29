@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 from .services import request, required, IntegrationError, UncertainWrite, LiveServices
+from .rocketlane_agent import RocketlaneAgent
 from .worker import single_worker
 from .checkpoints import LoggedSqliteSaver
 
@@ -59,7 +60,7 @@ def parse_update(text):
     return {'task_id':task_id,'status':status,'progress':progress,'note':match[4] or None}
 
 
-class DeliveryAPI:
+class DeliveryAPI(RocketlaneAgent):
     def slack_get(self, method, params):
         result = request('GET','https://slack.com/api/'+method+'?'+urlencode(params),
                          {'Authorization':'Bearer '+required('SLACK_BOT_TOKEN')})
@@ -90,44 +91,6 @@ class DeliveryAPI:
             raise UncertainWrite('Slack message receipt missing')
         return result['ts']
 
-    def rocket(self,method,path,payload=None):
-        return request(method,'https://api.rocketlane.com/api/1.0/'+path,
-                       {'api-key':required('ROCKETLANE_API_KEY')},payload)
-
-    def tasks(self,project):
-        if not str(project).isdigit():
-            raise IntegrationError('Real Rocketlane project ID required')
-        params={'projectId.eq':project,'includeAllFields':'true','limit':100}
-        tasks,cursors=[],set()
-        for _ in range(100):
-            result=self.rocket('GET','tasks?'+urlencode(params))
-            if not isinstance(result,dict) or not isinstance(result.get('data'),list):
-                raise IntegrationError('Unexpected Rocketlane task response')
-            tasks.extend(result['data'])
-            pagination=result.get('pagination') or {}
-            cursor=pagination.get('nextPageToken')
-            if not cursor:
-                if pagination.get('hasMore'):
-                    raise IntegrationError('Rocketlane pagination token missing; snapshot incomplete')
-                return tasks
-            if cursor in cursors:
-                raise IntegrationError('Rocketlane pagination loop')
-            cursors.add(cursor);params['pageToken']=cursor
-        raise IntegrationError('Rocketlane page limit reached')
-
-    def task(self,task_id):
-        if not str(task_id).isdigit():
-            raise IntegrationError('Native task ID must be numeric')
-        return self.rocket('GET','tasks/'+str(task_id)+'?includeAllFields=true')
-
-    def update(self,task_id,status,progress):
-        mappings=json.loads(required('ROCKETLANE_TASK_STATUS_VALUES'))
-        if status not in mappings or isinstance(mappings[status],bool):
-            raise IntegrationError('Verified tenant task status values required')
-        if not str(task_id).isdigit():
-            raise IntegrationError('Native task ID must be numeric')
-        self.rocket('PUT','tasks/'+str(task_id),{'status':{'value':mappings[status]},
-                                               'progress':progress,'atRisk':status=='blocked'})
 
 
 def normalize_task(item, project):

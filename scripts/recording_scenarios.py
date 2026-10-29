@@ -13,8 +13,7 @@ from app.workflow import Workflow
 
 def preflight():
     values=dotenv_values('.env')
-    keys=['GMAIL_REFRESH_TOKEN','GMAIL_CLIENT_ID','GMAIL_CLIENT_SECRET','VAPI_API_KEY',
-          'VAPI_ASSISTANT_ID','VAPI_PHONE_NUMBER_ID','AE_DEFAULT_PHONE','ROCKETLANE_API_KEY',
+    keys=['GMAIL_REFRESH_TOKEN','GMAIL_CLIENT_ID','GMAIL_CLIENT_SECRET','ROCKETLANE_API_KEY',
           'ENTERPRISE_TEMPLATE_SOURCES','GROWTH_TEMPLATE_SOURCES',
           'ROCKETLANE_TASK_STATUS_VALUES','ROCKETLANE_TASK_URL_TEMPLATE','SLACK_BOT_TOKEN']
     return {'checked_at':datetime.now(ZoneInfo('Asia/Kolkata')).isoformat(),

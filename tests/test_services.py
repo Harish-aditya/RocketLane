@@ -36,17 +36,6 @@ def test_get_transient_failure_recovers(monkeypatch):
     assert len(calls) == 3
 
 
-def test_live_voice_ignores_summary_and_multiple_answers(monkeypatch):
-    monkeypatch.setenv('VAPI_API_KEY', 'test-key')
-    monkeypatch.setattr(services, 'request', lambda *args: {
-        'status': 'ended', 'analysis': {'structuredData': {'plan': 'Enterprise'}},
-        'messages': [{'role': 'user', 'message': 'probably the bigger package'}]})
-    assert LiveServices().outcome('call-1') == 'probably the bigger package'
-    monkeypatch.setattr(services, 'request', lambda *args: {
-        'status': 'ended', 'messages': [{'role': 'user', 'message': 'Enterprise'}, {'role': 'user', 'message': 'Growth'}]})
-    assert LiveServices().outcome('call-1') == 'unresolved'
-
-
 def test_rocketlane_payload_uses_configured_source_and_owner(monkeypatch):
     for key, value in {'ENTERPRISE_TEMPLATE_SOURCES': '[{"templateId":123}]',
                        'ROCKETLANE_OWNER_EMAIL': 'owner@example.com',
@@ -65,21 +54,3 @@ def test_rocketlane_payload_uses_configured_source_and_owner(monkeypatch):
     assert payload['teamMembers']['members'][0]['emailId'] == 'csm@example.com'
 
 
-def test_minimal_deal_live_call_uses_configured_ae_routing(monkeypatch):
-    for key in ['VAPI_API_KEY', 'VAPI_ASSISTANT_ID', 'VAPI_PHONE_NUMBER_ID']:
-        monkeypatch.setenv(key, 'test')
-    monkeypatch.setenv('AE_DEFAULT_PHONE', '+12025550123')
-    sent = []
-    def post(*args):
-        sent.append(args)
-        return {'id': 'call-1'}
-    monkeypatch.setattr(services, 'request', post)
-    assert LiveServices().call({'customer_name': 'Acme'}) == 'call-1'
-    assert sent[0][3]['customer']['number'] == '+12025550123'
-
-
-def test_missing_ae_route_does_not_make_a_call(monkeypatch):
-    monkeypatch.delenv('AE_DEFAULT_PHONE', raising=False)
-    monkeypatch.setattr(services, 'request', lambda *args: pytest.fail('Must not call provider'))
-    with pytest.raises(services.IntegrationError, match='routing unavailable'):
-        LiveServices().call({'customer_name': 'Acme'})

@@ -41,6 +41,7 @@ class Operations:
                    'project_id': None, 'channel_id': None, 'migration_verified': False,
                    'error': error}
             run['customer_invite_required'] = True
+            run['voice_mode'] = 'real' if getattr(self.services, 'real_voice', False) else 'simulated'
             self.store.db.execute('INSERT INTO runs VALUES(?,?,?,?,?)', (run_id, message_id, opportunity, run['state'], json.dumps(run)))
             self.store.project_status(run)
             self.store.event(run, 'intake', 'Missing/invalid fields: ' + error if error else 'Mandatory fields validated; opportunity deduplicated')

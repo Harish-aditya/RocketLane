@@ -111,7 +111,7 @@ class Store:
         now = datetime.now(timezone.utc).isoformat()
         agent = 'Communication' if action.startswith(('channel_', 'add_member_','customer_invite_', 'topic_', 'welcome_')) else 'Intake and routing'
         if action.startswith('project_'):
-            agent = 'Project provisioning'
+            agent = 'Rocketlane'
         if action == 'intake':
             status = 'rejected' if run['state'] == 'rejected' else 'completed'
             self.db.execute('INSERT INTO agent_runs(run_id,agent_name,action,status,started_at,finished_at,rationale) VALUES(?,?,?,?,?,?,?)',

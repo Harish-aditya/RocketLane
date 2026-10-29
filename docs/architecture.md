@@ -1,3 +1,5 @@
+> Current implementation: telephone integration is not installed. Demo mode simulates confirmation; live call initiation fails closed. Historical real-call records cannot be advanced with simulated answers.
+
 # Architecture
 
 The application now uses custom Python LangGraph orchestration. `Workflow` remains the public facade; `app/graph_workflow.py` builds the graph and `app/operations.py` implements guarded actions. Intake parsing runs when a message is ingested; the intake subgraph owns outbound call and result routing. Communication is a separate subgraph. Optional structured models perform extraction and welcome drafting; default agents are deterministic.
@@ -34,7 +36,7 @@ flowchart TD
   Gmail[Gmail approved-label polling] --> Intake[Intake and Routing agent]
   Intake --> Validate{Validate and deduplicate}
   Validate -->|invalid| Reject[Rejected: clarification needed]
-  Validate -->|valid| Voice[Vapi outbound call]
+  Validate -->|valid| Voice[Simulated plan confirmation]
   Voice -->|ended explicit tier| Plan[Deterministic plan routing]
   Voice -->|unresolved| Retry[Bounded retry or human escalation]
   Plan --> Project[Rocketlane template project]
@@ -61,4 +63,4 @@ Run one worker. An OS file lock rejects a second local worker for the same datab
 
 Audit records intentionally capture decisions, action types, statuses and resource references through the run record without duplicating full emails, transcripts or secrets. Rejected input stores field errors rather than the raw email. Operator evidence must not include secrets.
 
-Action intent/result details now contain structured redacted input/output references and rationale. Voice evidence records call ID, accepted plan and a response hash rather than retaining raw speech. Full transcripts remain with the voice provider. Checkpoints contain customer context and must receive the same access restrictions and retention policy as the business database.
+Action intent/result details now contain structured redacted input/output references and rationale. Voice evidence records call ID, accepted plan and a response hash rather than retaining raw speech. No telephone provider is currently installed; demo evidence is simulated. Checkpoints contain customer context and must receive the same access restrictions and retention policy as the business database.
